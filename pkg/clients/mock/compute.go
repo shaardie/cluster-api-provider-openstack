@@ -97,6 +97,20 @@ func (mr *MockComputeClientMockRecorder) DeleteServer(arg0 interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteServer", reflect.TypeOf((*MockComputeClient)(nil).DeleteServer), arg0)
 }
 
+// DeleteServer mocks base method.
+func (m *MockComputeClient) StopServer(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "StopServer", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteServer indicates an expected call of DeleteServer.
+func (mr *MockComputeClientMockRecorder) StopServer(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StopServer", reflect.TypeOf((*MockComputeClient)(nil).DeleteServer), arg0)
+}
+
 // GetFlavorFromName mocks base method.
 func (m *MockComputeClient) GetFlavorFromName(arg0 string) (*flavors.Flavor, error) {
 	m.ctrl.T.Helper()

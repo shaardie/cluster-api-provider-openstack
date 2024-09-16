@@ -23,6 +23,7 @@ import (
 	"github.com/gophercloud/gophercloud/openstack"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/attachinterfaces"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/availabilityzones"
+	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/startstop"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/flavors"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
 	"github.com/gophercloud/utils/openstack/clientconfig"
@@ -55,6 +56,7 @@ type ComputeClient interface {
 	GetFlavorFromName(flavor string) (*flavors.Flavor, error)
 	CreateServer(createOpts servers.CreateOptsBuilder) (*ServerExt, error)
 	DeleteServer(serverID string) error
+	StopServer(serverID string) error
 	GetServer(serverID string) (*ServerExt, error)
 	ListServers(listOpts servers.ListOptsBuilder) ([]ServerExt, error)
 
@@ -110,6 +112,12 @@ func (c computeClient) CreateServer(createOpts servers.CreateOptsBuilder) (*Serv
 func (c computeClient) DeleteServer(serverID string) error {
 	mc := metrics.NewMetricPrometheusContext("server", "delete")
 	err := servers.Delete(c.client, serverID).ExtractErr()
+	return mc.ObserveRequestIgnoreNotFound(err)
+}
+
+func (c computeClient) StopServer(serverID string) error {
+	mc := metrics.NewMetricPrometheusContext("server", "stop")
+	err := startstop.Stop(c.client, serverID).ExtractErr()
 	return mc.ObserveRequestIgnoreNotFound(err)
 }
 
@@ -169,6 +177,10 @@ func (e computeErrorClient) CreateServer(_ servers.CreateOptsBuilder) (*ServerEx
 }
 
 func (e computeErrorClient) DeleteServer(_ string) error {
+	return e.error
+}
+
+func (e computeErrorClient) StopServer(_ string) error {
 	return e.error
 }
 
